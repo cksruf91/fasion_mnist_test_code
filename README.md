@@ -1,1 +1,1 @@
-# fasion_mnist_test_code
+# Fasion mnist test code
