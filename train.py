@@ -44,6 +44,8 @@ if __name__ == '__main__':
         "result/model_e{epoch:02d}_acc{val_acc:0.3f}.zip", mf_logger=mlflow_logger,
         save_best=True, monitor='val_acc', mode='max'
     )
-    callbacks = [model_checkpoint, mlflow_logger]
+    callbacks = [
+        # model_checkpoint, mlflow_logger
+    ]
 
     model.fit(10, train_iterator, test_iterator, loss_func=cross_entropy_loss, optimizer=optimizer, callback=callbacks)

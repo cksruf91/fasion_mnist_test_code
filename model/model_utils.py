@@ -16,8 +16,8 @@ def accuracy(output: torch.tensor, label: torch.tensor) -> float:
         float: accuracy
     """
     total = len(output)
-    label_array = np.array(label)
-    output_array = np.array(output)
+    label_array = np.array(label.cpu())
+    output_array = np.array(output.cpu())
 
     assert len(label_array) == len(output_array)
     match = np.sum(label_array == output_array)
@@ -119,17 +119,19 @@ class TorchModelInterface(nn.Module, metaclass=ABCMeta):
     def validation(self, test_dataloader, loss_func):
         self.eval()
         total_step = len(test_dataloader)
+        batch_size = test_dataloader.batch_size
         val_loss = 0
 
-        output, label = [], []
+        output = torch.empty([len(test_dataloader) * batch_size])
+        label = torch.empty([len(test_dataloader) * batch_size])
 
         with torch.no_grad():
             for step, data in enumerate(test_dataloader):
 
                 loss, y, y_hat = self._compute_loss(data, loss_func, train=False)
                 val_loss += loss.item()
-                output.extend(y_hat)
-                label.extend(y)
+                output[step * batch_size: (step + 1) * batch_size] = y_hat
+                label[step * batch_size: (step + 1) * batch_size] = y
 
                 if step >= total_step:
                     break

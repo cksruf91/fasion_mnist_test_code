@@ -7,7 +7,7 @@ from model.model_utils import TorchModelInterface
 
 class Net(TorchModelInterface):
 
-    def __init__(self):
+    def __init__(self, device):
         super(Net, self).__init__()
         self.conv2d = nn.Conv2d(in_channels=1, out_channels=3, kernel_size=(3, 3), padding=(1, 1))
         self.dropout = nn.Dropout(0.1)
@@ -17,10 +17,11 @@ class Net(TorchModelInterface):
         self.linear = nn.Linear(14 * 14 * 3, 10)
         self.linear2 = nn.Linear(10, 10)
 
-        self.device = torch.device("cpu")
+        self.device = device
 
         self.double()
         self.apply(self._weights_init)
+        self.to(self.device)
 
     @staticmethod
     def _weights_init(m):
