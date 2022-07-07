@@ -9,22 +9,23 @@ from model.cnn_model import Net
 
 if __name__ == '__main__':
     print(f"cuda : {torch.cuda.is_available()}")
+    device = torch.device("cuda")
     lr = 1e-3
     batch_size = 16
 
     train_dataset = FashionMNIST(
         root='./dataset/FashionMnist', train=True, download=True,
-        transform=lambda x: (x - np.mean(x)) / np.std(x)
+        transform=lambda x: torch.tensor((x - np.mean(x)) / np.std(x), device=device)
     )
     test_dataset = FashionMNIST(
         root='./dataset/FashionMnist', train=False, download=True,
-        transform=lambda x: (x - np.mean(x)) / np.std(x)
+        transform=lambda x: torch.tensor((x - np.mean(x)) / np.std(x), device=device)
     )
 
     train_iterator = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
     test_iterator = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
-    model = Net()
+    model = Net(device=device)
     model.double()
 
     model_input = next(iter(train_iterator))
@@ -39,11 +40,12 @@ if __name__ == '__main__':
 
     model_params = {"lr": lr, "loss_func": cross_entropy_loss, "batch_size": batch_size}
 
-    mlflow_logger = MlflowLogger("FashionMnist", model_params, run_name='version_0.3')
-    model_checkpoint = ModelCheckPoint(
-        "result/model_e{epoch:02d}_acc{val_acc:0.3f}.zip", mf_logger=mlflow_logger,
-        save_best=True, monitor='val_acc', mode='max'
-    )
+    # Mlflow ui 가 있을때만 사용
+    # mlflow_logger = MlflowLogger("FashionMnist", model_params, run_name='version_0.3')
+    # model_checkpoint = ModelCheckPoint(
+    #     "result/model_e{epoch:02d}_acc{val_acc:0.3f}.zip", mf_logger=mlflow_logger,
+    #     save_best=True, monitor='val_acc', mode='max'
+    # )
     callbacks = [
         # model_checkpoint, mlflow_logger
     ]
