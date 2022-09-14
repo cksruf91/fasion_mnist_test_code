@@ -9,7 +9,7 @@ from model.cnn_model import Net
 
 if __name__ == '__main__':
     print(f"cuda : {torch.cuda.is_available()}")
-    device = torch.device("cuda")
+    device = torch.device("cpu")
     lr = 1e-3
     batch_size = 16
 
