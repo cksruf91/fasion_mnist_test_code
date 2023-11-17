@@ -2,10 +2,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from model.model_utils import TorchModelInterface
 
-
-class Net(TorchModelInterface):
+class Net(nn.Module):
 
     def __init__(self, device):
         super(Net, self).__init__()
@@ -39,23 +37,5 @@ class Net(TorchModelInterface):
         x = self.linear2(x)
         return self.softmax(x)
 
-    def _compute_loss(self, data, loss_func, optimizer=None, scheduler=None, train=True):
-        image = data[0].to(self.device)
-        label = data[1].to(self.device)
-
-        output = self.forward(image)
-        loss = loss_func(output, label)
-
-        if train:
-            loss.backward()
-
-            torch.nn.utils.clip_grad_norm_(self.parameters(), 1.0)
-            optimizer.step()
-
-            if scheduler is not None:
-                scheduler.step()  # Update learning rate schedule
-            self.zero_grad()
-
-        y_hat = torch.argmax(output, dim=-1)
-
-        return loss, label, y_hat
+    def predict(self, image):
+        return self.forward(image)
